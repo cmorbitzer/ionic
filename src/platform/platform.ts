@@ -32,7 +32,7 @@ import { removeArrayItem } from '../util/util';
 export class Platform {
   private _win: Window;
   private _doc: HTMLDocument;
-  private _versions: {[name: string]: PlatformVersion} = {};
+  private _versions: { [name: string]: PlatformVersion } = {};
   private _dir: string;
   private _lang: string;
   private _ua: string;
@@ -42,7 +42,7 @@ export class Platform {
   private _readyPromise: Promise<any>;
   private _readyResolve: any;
   private _bbActions: BackButtonAction[] = [];
-  private _registry: {[name: string]: PlatformConfig};
+  private _registry: { [name: string]: PlatformConfig };
   private _default: string;
   private _pW = 0;
   private _pH = 0;
@@ -71,7 +71,7 @@ export class Platform {
   _platforms: string[] = [];
 
   constructor() {
-    this._readyPromise = new Promise(res => { this._readyResolve = res; } );
+    this._readyPromise = new Promise(res => { this._readyResolve = res; });
 
     this.backButton.subscribe(() => {
       // the hardware back button event has been fired
@@ -217,7 +217,7 @@ export class Platform {
    *
    * @returns {object} An object containing all of the platforms and their versions.
    */
-  versions(): {[name: string]: PlatformVersion} {
+  versions(): { [name: string]: PlatformVersion } {
     // get all the platforms that have a valid parsed version
     return this._versions;
   }
@@ -379,7 +379,7 @@ export class Platform {
   /**
    * @private
    */
-  exitApp() {}
+  exitApp() { }
 
   // Events meant to be triggered by the engine
   // **********************************************
@@ -424,7 +424,7 @@ export class Platform {
    * the its back button action.
    */
   registerBackButtonAction(fn: Function, priority: number = 0): Function {
-    const action: BackButtonAction = {fn, priority};
+    const action: BackButtonAction = { fn, priority };
 
     this._bbActions.push(action);
 
@@ -571,25 +571,37 @@ export class Platform {
       // separately because the virtual keyboard can really mess
       // up accurate values when the keyboard is up
       if (win.screen.width > 0 && win.screen.height > 0) {
-        if (win.screen.width < win.screen.height) {
+        if (win['innerWidth'] < win['innerHeight']) {
 
-          if (this._pW < win['innerWidth']) {
+          // the device is in portrait
+          if (this._pW < win['innerWidth'] || this._pW === win['innerWidth']) {
+            console.debug('setting _isPortrait to true');
             this._isPortrait = true;
             this._pW = win['innerWidth'];
           }
-          if (this._pH < win['innerHeight']) {
+          if (this._pH < win['innerHeight'] || this._pH === win['innerHeight']) {
+            console.debug('setting _isPortrait to true');
             this._isPortrait = true;
             this._pH = win['innerHeight'];
           }
 
         } else {
-          if (this._lW < win['innerWidth']) {
+          // the device is in landscape
+          if (this._lW < win['innerWidth'] || this._lW === win['innerWidth']) {
+            console.debug('setting _isPortrait to false');
             this._isPortrait = false;
             this._lW = win['innerWidth'];
           }
-          if (this._lH < win['innerHeight']) {
+          if (this._lH < win['innerHeight'] || this._lH === win['innerHeight']) {
+            console.debug('setting _isPortrait to false');
             this._isPortrait = false;
             this._lH = win['innerHeight'];
+          }
+          if (this._lW > win['innerWidth']) {
+            // Special case: keyboard is open and device is in portrait
+            console.debug('setting _isPortrait to true while keyboard is open and device is portrait');
+            this._isPortrait = true;
+            this._lW = win['innerWidth'];
           }
         }
 
@@ -601,7 +613,7 @@ export class Platform {
    * @private
    * This requestAnimationFrame will NOT be wrapped by zone.
    */
-  raf(callback: {(timeStamp?: number): void}|Function): number {
+  raf(callback: { (timeStamp?: number): void } | Function): number {
     const win: any = this._win;
     return win['__zone_symbol__requestAnimationFrame'](callback);
   }
@@ -638,13 +650,13 @@ export class Platform {
    * If options are not supported, then just return a boolean which
    * represents "capture". Returns a method to remove the listener.
    */
-  registerListener(ele: any, eventName: string, callback: {(ev?: UIEvent): void}, opts: EventListenerOptions, unregisterListenersCollection?: Function[]): Function {
+  registerListener(ele: any, eventName: string, callback: { (ev?: UIEvent): void }, opts: EventListenerOptions, unregisterListenersCollection?: Function[]): Function {
     // use event listener options when supported
     // otherwise it's just a boolean for the "capture" arg
     const listenerOpts: any = this._uiEvtOpts ? {
-        'capture': !!opts.capture,
-        'passive': !!opts.passive,
-      } : !!opts.capture;
+      'capture': !!opts.capture,
+      'passive': !!opts.passive,
+    } : !!opts.capture;
 
     let unReg: Function;
     if (!opts.zone && ele['__zone_symbol__addEventListener']) {
@@ -673,7 +685,7 @@ export class Platform {
   /**
    * @private
    */
-  transitionEnd(el: HTMLElement, callback: {(ev?: TransitionEvent): void}, zone = true) {
+  transitionEnd(el: HTMLElement, callback: { (ev?: TransitionEvent): void }, zone = true) {
     const unRegs: Function[] = [];
 
     function unregister() {
@@ -723,7 +735,7 @@ export class Platform {
     const self = this;
     self._onResizes.push(cb);
 
-    return function() {
+    return function () {
       removeArrayItem(self._onResizes, cb);
     };
   }
@@ -809,7 +821,7 @@ export class Platform {
   /**
    * @private
    */
-  setPlatformConfigs(platformConfigs: {[key: string]: PlatformConfig}) {
+  setPlatformConfigs(platformConfigs: { [key: string]: PlatformConfig }) {
     this._registry = platformConfigs || {};
   }
 
@@ -1033,7 +1045,7 @@ class PlatformNode {
   isEngine: boolean;
   depth: number;
 
-  constructor(public registry: {[name: string]: PlatformConfig}, platformName: string) {
+  constructor(public registry: { [name: string]: PlatformConfig }, platformName: string) {
     this.c = registry[platformName];
     this.name = platformName;
     this.isEngine = this.c.isEngine;
@@ -1148,7 +1160,7 @@ export interface EventListenerOptions {
 /**
  * @private
  */
-export function setupPlatform(doc: HTMLDocument, platformConfigs: {[key: string]: PlatformConfig}, zone: NgZone): Platform {
+export function setupPlatform(doc: HTMLDocument, platformConfigs: { [key: string]: PlatformConfig }, zone: NgZone): Platform {
   const plt = new Platform();
   plt.setDefault('core');
   plt.setPlatformConfigs(platformConfigs);
