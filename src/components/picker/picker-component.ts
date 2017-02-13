@@ -329,7 +329,18 @@ export class PickerColumnCmp {
     const parent = this.colEle.nativeElement;
     const children = parent.children;
     const length = children.length;
-    const selectedIndex = this.col.selectedIndex = Math.min(Math.max(Math.round(-y / this.optHeight), 0), length - 1);
+    //const selectedIndex = this.col.selectedIndex = Math.min(Math.max(Math.round(-y / this.optHeight), 0), length - 1);
+    let disabled: boolean = false;
+    let selectedIndex: number = Math.min(Math.max(Math.round(-y / this.optHeight), 0), length - 1);
+    if(this.col.options[selectedIndex].disabled) {
+      if((Math.floor(-y / this.optHeight) < selectedIndex && selectedIndex > 1) || selectedIndex === length - 1) {
+        selectedIndex--;
+      } else {
+        selectedIndex++;
+      }
+      disabled = true;
+    }
+    this.col.selectedIndex = selectedIndex;
 
     const durationStr = (duration === 0) ? null : duration + 'ms';
     const scaleStr = `scale(${this.scaleFactor})`;
@@ -395,17 +406,21 @@ export class PickerColumnCmp {
     }
 
     if (emitChange) {
-      if (this.lastIndex === undefined) {
-        // have not set a last index yet
-        this.lastIndex = this.col.selectedIndex;
+      if(disabled) {
+        this.setSelected(selectedIndex, 250);
+      } else {
+        if (this.lastIndex === undefined) {
+          // have not set a last index yet
+          this.lastIndex = this.col.selectedIndex;
 
-      } else if (this.lastIndex !== this.col.selectedIndex) {
-        // new selected index has changed from the last index
-        // update the lastIndex and emit that it has changed
-        this.lastIndex = this.col.selectedIndex;
-        var ionChange = this.ionChange;
-        if (ionChange.observers.length > 0) {
-          this._zone.run(ionChange.emit.bind(ionChange, this.col.options[this.col.selectedIndex]));
+        } else if (this.lastIndex !== this.col.selectedIndex) {
+          // new selected index has changed from the last index
+          // update the lastIndex and emit that it has changed
+          this.lastIndex = this.col.selectedIndex;
+          var ionChange = this.ionChange;
+          if (ionChange.observers.length > 0) {
+            this._zone.run(ionChange.emit.bind(ionChange, this.col.options[this.col.selectedIndex]));
+          }
         }
       }
     }
