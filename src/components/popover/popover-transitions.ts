@@ -153,15 +153,18 @@ export class PopoverPopIn extends PopoverTransition {
   init() {
     let ele = this.enteringView.pageRef().nativeElement;
 
+    let popover = new Animation(this.plt, ele);
     let backdrop = new Animation(this.plt, ele.querySelector('ion-backdrop'));
     let wrapper = new Animation(this.plt, ele.querySelector('.popover-wrapper'));
 
     wrapper.fromTo('opacity', 0.01, 1);
-    backdrop.fromTo('opacity', 0.01, 0.08);
+    backdrop.fromTo('opacity', 0.01, 0.3);
+    popover.fromTo('-webkit-backdrop-filter', 'blur(0px)', 'blur(20px)');
 
     this
       .easing('ease')
       .duration(100)
+      .add(popover)
       .add(backdrop)
       .add(wrapper);
   }
@@ -178,15 +181,18 @@ export class PopoverPopIn extends PopoverTransition {
 export class PopoverPopOut extends PopoverTransition {
   init() {
     let ele = this.leavingView.pageRef().nativeElement;
+    let popover = new Animation(this.plt, ele);
     let backdrop = new Animation(this.plt, ele.querySelector('ion-backdrop'));
     let wrapper = new Animation(this.plt, ele.querySelector('.popover-wrapper'));
 
     wrapper.fromTo('opacity', 0.99, 0);
-    backdrop.fromTo('opacity', 0.08, 0);
+    backdrop.fromTo('opacity', 0.3, 0);
+    popover.fromTo('-webkit-backdrop-filter', 'blur(20px)', 'blur(0px)');
 
     this
       .easing('ease')
       .duration(500)
+      .add(popover)
       .add(backdrop)
       .add(wrapper);
   }
